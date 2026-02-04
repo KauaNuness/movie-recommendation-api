@@ -12,11 +12,19 @@ import java.util.Map;
 @Service
 public class TmdbClient {
 
-    @Value("${tmdb.api.key}")
-    private String apiKey;
+    private final WebClient webClient;
+    private final String apiKey;
 
-    private final WebClient webClient =
-            WebClient.create("https://api.themoviedb.org/3");
+    public TmdbClient(
+            WebClient.Builder builder,
+            @Value("${tmdb.api.key}") String apiKey
+    ) {
+        this.apiKey = apiKey.trim();
+        this.webClient = builder
+                .baseUrl("https://api.themoviedb.org/3")
+                .defaultHeader("User-Agent", "MovieRecommendationAPI")
+                .build();
+    }
 
     public Flux<TmdbMovieDto> getPopularMovies() {
         return webClient.get()
